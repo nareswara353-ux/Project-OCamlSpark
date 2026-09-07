@@ -1,30 +1,34 @@
-type waypoint = {
-  x : float;
-  y : float;
-  z : float;
-  time : float;
+type state = {
+  position : float;
+  velocity : float;
+  acceleration : float;
+  timestamp : float;
 }
 
-type state = {
-  position : waypoint;
-  velocity : float * float * float;
-  attitude : float * float * float;
+type waypoint = {
+  target_position : float;
+  target_velocity : float;
+  time_to_reach : float;
 }
 
 type trajectory = {
   waypoints : waypoint list;
+  start_state : state;
   duration : float;
-  max_speed : float;
-  max_accel : float;
 }
 
-let create_waypoint x y z time = { x; y; z; time }
+type actuator_command = {
+  deflection : float;
+  rate_limit : float;
+}
 
-let create_state pos vel att = { position = pos; velocity = vel; attitude = att }
+type flight_mode =
+  | Manual
+  | AutoPilot
+  | Emergency
 
-let create_trajectory wps dur max_spd max_acc = {
-  waypoints = wps;
-  duration = dur;
-  max_speed = max_spd;
-  max_accel = max_acc;
+type trajectory_parameters = {
+  max_accel : float;
+  max_velocity : float;
+  jerk_limit : float;
 }
