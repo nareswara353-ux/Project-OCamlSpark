@@ -1,1 +1,1 @@
-val tests : unit -> unit
+val run_tests : unit -> unit
