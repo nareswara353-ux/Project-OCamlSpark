@@ -1,0 +1,13 @@
+(library
+ (name actuator_engine)
+ (modules trajectory_types trajectory_types optimizer optimizer setpoint_gen setpoint_gen mode_manager mode_manager)
+ (libraries ctypes-foreign))
+
+(executable
+ (name actuator_main)
+ (modules main)
+ (libraries actuator_engine ctypes-foreign)
+ (foreign_stubs
+  (language c)
+  (names actuator_ffi actuator_bridge ocaml_glue)
+  (flags -Wall -O2)))
