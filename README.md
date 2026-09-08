@@ -183,4 +183,4 @@ GPL-3.0 — untuk keperluan open-source aerospace research.
 
 ## Authors
 
-Hybrid Arch Team — arsitektur monorepo polyglot OCaml + SPARK.
+Nareswara.
