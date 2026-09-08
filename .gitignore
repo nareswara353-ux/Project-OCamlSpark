@@ -8,7 +8,6 @@ _build
 *.dll
 *.a
 *.lib
-*.gpr
 *.gprconfig
 *.gprcfg
 *.deps
