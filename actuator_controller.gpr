@@ -1,0 +1,33 @@
+project Actuator_Controller is
+   for Languages use ("Ada");
+   for Source_Dirs use ("core_spark");
+   for Object_Dir use "obj";
+   for Exec_Dir use "bin";
+
+   package Compiler is
+      for Switches ("Ada") use ("-gnatwa", "-gnatq", "-gnatQ", "-gnatf", "-gnatyg");
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-E");
+   end Binder;
+
+   package Builder is
+      for Switches ("Ada") use ("-j0", "-k");
+   end Builder;
+
+   package Proof is
+      for Mode use ("Prove_All");
+      for Provers use ("cvc4", "altergo");
+      for Timeout use 60;
+      for Memlimit use 4096;
+      for Prove_Processes use 4;
+      for Switches ("Ada") use ("--level=1", "--no-loop-unrolling=10");
+   end Proof;
+
+   package Ide is
+      for Gnatprove_Switches use ("--level=1", "--report=all");
+   end Ide;
+
+   for Create_Missing_Dirs use "True";
+end Actuator_Controller;
