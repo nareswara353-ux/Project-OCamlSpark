@@ -1,6 +1,6 @@
 (library
  (name actuator_engine)
- (modules trajectory_types optimizer setpoint_gen mode_manager trajectory)
+ (modules trajectory_types optimizer setpoint_gen mode_manager trajectory fuser)
  (libraries ctypes-foreign))
 
 (executable
