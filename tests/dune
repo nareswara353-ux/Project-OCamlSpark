@@ -1,4 +1,4 @@
-(executable
+(test
  (name ocaml_tests)
  (modules ocaml_tests)
  (libraries actuator_engine alcotest ctypes-foreign)
@@ -7,7 +7,7 @@
   (names actuator_ffi actuator_bridge ocaml_glue)
   (flags -Wall -O2)))
 
-(executable
+(test
  (name integration_test)
  (modules integration_test)
  (libraries actuator_engine alcotest ctypes-foreign)
@@ -15,10 +15,3 @@
   (language c)
   (names actuator_ffi actuator_bridge ocaml_glue)
   (flags -Wall -O2)))
-
-(rule
- (alias runtest)
- (deps ocaml_tests.exe integration_test.exe)
- (action (progn
-          (run ./ocaml_tests.exe)
-          (run ./integration_test.exe))))
