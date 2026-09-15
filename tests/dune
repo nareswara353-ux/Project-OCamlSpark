@@ -1,17 +1,9 @@
 (test
  (name ocaml_tests)
  (modules ocaml_tests)
- (libraries actuator_engine alcotest ctypes-foreign)
- (foreign_stubs
-  (language c)
-  (names actuator_ffi actuator_bridge ocaml_glue)
-  (flags -Wall -O2)))
+ (libraries actuator_engine actuator_binding alcotest ctypes-foreign))
 
 (test
  (name integration_test)
  (modules integration_test)
- (libraries actuator_engine alcotest ctypes-foreign)
- (foreign_stubs
-  (language c)
-  (names actuator_ffi actuator_bridge ocaml_glue)
-  (flags -Wall -O2)))
+ (libraries actuator_engine actuator_binding alcotest ctypes-foreign))
