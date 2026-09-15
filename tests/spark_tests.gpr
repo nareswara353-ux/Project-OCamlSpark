@@ -1,0 +1,24 @@
+with "../spark_lib.gpr";
+with "aunit";
+
+project Spark_Tests is
+   for Languages use ("Ada");
+   for Source_Dirs use (".", "../core_spark");
+   for Object_Dir use "../obj/tests";
+   for Exec_Dir use "../bin";
+   for Main use ("spark_runner.adb");
+
+   package Compiler is
+      for Switches ("Ada") use ("-gnatwa", "-gnatq", "-gnatQ", "-gnatf", "-gnatyg");
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-E");
+   end Binder;
+
+   package Builder is
+      for Switches ("Ada") use ("-j0", "-k");
+   end Builder;
+
+   for Create_Missing_Dirs use "True";
+end Spark_Tests;
