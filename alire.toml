@@ -1,29 +1,30 @@
 name = "flight_actuator_controller"
 version = "0.1.0"
 authors = ["Hybrid Arch Team"]
-maintainers = ["arch@hybrid.com"]
-maintainers-login = ["arch"]
+maintainers = ["Hybrid Arch Team <arch@hybrid.com>"]
+maintainers-logins = ["hybrid-arch"]
 description = "OCaml trajectory optimizer with SPARK-verified actuator commands"
-licenses = ["GPL-3.0"]
-tags = ["mission-critical", "aerospace", "hybrid"]
+licenses = "GPL-3.0-only"
+tags = ["mission-critical", "aerospace", "hybrid", "spark", "ocaml"]
 
-[executables]
-actuator_controller = {
-    main = "actuator_controller.adb",
-    build = "gnat"
-}
+executables = ["actuator_controller"]
 
-[dependencies]
-gnatprove = { version = "^13" }
-libgpr = { version = "^2021" }
-gnat = { version = "^13" }
+[[depends-on]]
+gnat = ">=13.0.0"
+gnatprove = "^13.0.0"
+gprbuild = "^22.0.0"
+
+[build-switches]
+"*".optimization = "performance"
+"*".debug_info = "no"
+"*".runtime_checks = "default"
+"*".contracts = "yes"
+"*".style_checks = "no"
+"*".compile_checks = "warnings"
 
 [configuration]
-gpr_project = "actuator_controller.gpr"
-
-[build]
-type = "external"
-command = "gprbuild -p -P actuator_controller.gpr"
-
-[proof]
-command = "gnatprove -P actuator_controller.gpr --level=1 --timeout=60"
+generate_ada = false
+generate_c = false
+auto_gprbuild = true
+output_dir = "bin"
+build_dir = "obj"
