@@ -1,0 +1,34 @@
+library project Spark_Lib is
+   for Languages use ("Ada");
+   for Source_Dirs use ("core_spark");
+   for Object_Dir use "obj/lib";
+   for Library_Dir use "lib";
+   for Library_Name use "spark_actuator";
+   for Library_Kind use "dynamic";
+   for Library_Interface use (
+      "Actuator_Types",
+      "Actuator_Commands",
+      "Redundancy_Voter",
+      "Health_Monitor",
+      "Actuator_Limits",
+      "Actuator_Controller",
+      "Power_Distribution",
+      "Debug_Interface",
+      "Spark_Exports"
+   );
+   for Library_Standalone use "encapsulated";
+
+   package Compiler is
+      for Switches ("Ada") use ("-gnatwa", "-gnatq", "-gnatQ", "-gnatf", "-gnatyg", "-fPIC");
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-E");
+   end Binder;
+
+   package Builder is
+      for Switches ("Ada") use ("-j0", "-k");
+   end Builder;
+
+   for Create_Missing_Dirs use "True";
+end Spark_Lib;
