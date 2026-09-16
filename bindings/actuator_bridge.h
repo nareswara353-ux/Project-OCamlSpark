@@ -4,18 +4,8 @@
 #include "spark_export.h"
 #include <stdint.h>
 
-typedef struct {
-    double position;
-    double velocity;
-    double acceleration;
-    double timestamp;
-} ocaml_state_t;
-
-typedef struct {
-    double target_position;
-    double target_velocity;
-    double time_to_reach;
-} ocaml_waypoint_t;
+typedef struct { double position; double velocity; double acceleration; double timestamp; } ocaml_state_t;
+typedef struct { double target_position; double target_velocity; double time_to_reach; } ocaml_waypoint_t;
 
 typedef struct {
     ocaml_waypoint_t* waypoints;
@@ -24,22 +14,11 @@ typedef struct {
     double duration;
 } ocaml_trajectory_t;
 
-typedef struct {
-    double deflection;
-    double rate_limit;
-} ocaml_command_t;
+typedef struct { double deflection; double rate_limit; } ocaml_command_t;
 
-typedef enum {
-    OCAML_MANUAL = 0,
-    OCAML_AUTOPILOT = 1,
-    OCAML_EMERGENCY = 2
-} ocaml_flight_mode_t;
+typedef enum { OCAML_MANUAL = 0, OCAML_AUTOPILOT = 1, OCAML_EMERGENCY = 2 } ocaml_flight_mode_t;
 
-typedef struct {
-    double max_accel;
-    double max_velocity;
-    double jerk_limit;
-} ocaml_traj_params_t;
+typedef struct { double max_accel; double max_velocity; double jerk_limit; } ocaml_traj_params_t;
 
 command_t bridge_command_to_spark(ocaml_command_t cmd);
 limits_t bridge_limits_to_spark(double max_def, double min_def);

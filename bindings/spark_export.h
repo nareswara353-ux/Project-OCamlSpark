@@ -16,18 +16,8 @@ typedef struct {
     deflection_t min_deflection;
 } limits_t;
 
-typedef enum {
-    HEALTHY = 0,
-    DEGRADED = 1,
-    FAILED = 2
-} health_status_t;
-
-typedef enum {
-    IDLE = 0,
-    ACTIVE = 1,
-    FAULT = 2,
-    EMERGENCY = 3
-} controller_state_t;
+typedef enum { HEALTHY = 0, DEGRADED = 1, FAILED = 2 } health_status_t;
+typedef enum { IDLE = 0, ACTIVE = 1, FAULT = 2, EMERGENCY = 3 } controller_state_t;
 
 typedef struct {
     deflection_t current_deflection;
@@ -37,11 +27,7 @@ typedef struct {
     limits_t limit;
 } actuator_state_t;
 
-typedef enum {
-    SENSOR_OK = 0,
-    SENSOR_WARNING = 1,
-    SENSOR_CRITICAL = 2
-} sensor_health_t;
+typedef enum { SENSOR_OK = 0, SENSOR_WARNING = 1, SENSOR_CRITICAL = 2 } sensor_health_t;
 
 typedef struct {
     sensor_health_t position;
@@ -50,29 +36,21 @@ typedef struct {
     sensor_health_t hydraulic;
 } channel_health_t;
 
-typedef enum {
-    LOAD_NORMAL = 0,
-    LOAD_OVERLOADED = 1,
-    LOAD_CRITICAL = 2
-} load_status_t;
+typedef enum { LOAD_NORMAL = 0, LOAD_OVERLOADED = 1, LOAD_CRITICAL = 2 } load_status_t;
 
 typedef struct {
     double current_load;
     double max_capacity;
 } bus_load_t;
 
-typedef enum {
-    BUS_A = 0,
-    BUS_B = 1,
-    EMERGENCY_BUS = 2
-} power_bus_t;
+typedef enum { BUS_A = 0, BUS_B = 1, EMERGENCY_BUS = 2 } power_bus_t;
 
 bool spark_validate_command(double current, double target, double max_rate, double max_def, double min_def);
-command_t spark_apply_limits(command_t cmd, limits_t limits);
-bool spark_is_within_limits(double value, limits_t limits);
+void spark_apply_limits(const command_t* cmd, const limits_t* limits, command_t* out);
+bool spark_is_within_limits(double value, const limits_t* limits);
 int  spark_check_overall_status(int pos, int temp, int curr, int hyd);
-command_t spark_majority_vote(command_t c1, command_t c2, command_t c3, limits_t limits);
-bool spark_is_consensus(command_t c1, command_t c2, command_t c3, double tolerance);
+void spark_majority_vote(const command_t* c1, const command_t* c2, const command_t* c3, const limits_t* limits, command_t* out);
+bool spark_is_consensus(const command_t* c1, const command_t* c2, const command_t* c3, double tolerance);
 double spark_get_current_deflection(int id);
 double spark_get_temperature(int id);
 double spark_get_hydraulic_pressure(int id);
