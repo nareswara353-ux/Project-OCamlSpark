@@ -6,6 +6,7 @@ with Redundancy_Voter; use Redundancy_Voter;
 with Health_Monitor; use Health_Monitor;
 with Actuator_Limits; use Actuator_Limits;
 with Actuator_Controller; use Actuator_Controller;
+with Power_Distribution; use Power_Distribution;
 
 package body Spark_Tests is
    type Test_Validate_Command is new Test_Case with null record;
@@ -27,6 +28,14 @@ package body Spark_Tests is
    type Test_Controller is new Test_Case with null record;
    function Name (T : Test_Controller) return Message_String;
    procedure Run (T : in out Test_Controller);
+
+   type Test_Power_Allocation is new Test_Case with null record;
+   function Name (T : Test_Power_Allocation) return Message_String;
+   procedure Run (T : in out Test_Power_Allocation);
+
+   type Test_Power_Shedding is new Test_Case with null record;
+   function Name (T : Test_Power_Shedding) return Message_String;
+   procedure Run (T : in out Test_Power_Shedding);
 
    function Name (T : Test_Validate_Command) return Message_String is
    begin
@@ -56,6 +65,9 @@ package body Spark_Tests is
    begin
       Result := Majority_Vote (C1, C2, C3, Limits);
       Assert (Result.Target_Deflection = 0.5, "Median should be 0.5");
+      Assert (Is_Consensus (C1, C2, C3, 0.3), "Consensus within tolerance");
+      Assert (not Is_Consensus (C1, C2, C3, 0.05), "No consensus with tight tolerance");
+      Assert (Mismatch_Detected (C1, C2, C3, 0.05), "Mismatch detected with tight tolerance");
    end Run;
 
    function Name (T : Test_Health_Status) return Message_String is
@@ -65,11 +77,14 @@ package body Spark_Tests is
 
    procedure Run (T : in out Test_Health_Status) is
       H_Healthy : Channel_Health := (Position => OK, Temperature => OK, Current => OK, Hydraulic => OK);
+      H_Warning : Channel_Health := (Position => Warning, Temperature => OK, Current => OK, Hydraulic => OK);
       H_Failed  : Channel_Health := (Position => Critical, Temperature => OK, Current => OK, Hydraulic => OK);
    begin
       Assert (Is_Channel_Operational (H_Healthy), "Healthy channel should be operational");
+      Assert (Is_Channel_Operational (H_Warning), "Warning channel should be operational");
       Assert (not Is_Channel_Operational (H_Failed), "Failed channel should not be operational");
       Assert (Overall_Status (H_Healthy) = Healthy, "All OK => Healthy");
+      Assert (Overall_Status (H_Warning) = Degraded, "Warning => Degraded");
       Assert (Overall_Status (H_Failed) = Failed, "Critical => Failed");
    end Run;
 
@@ -97,12 +112,57 @@ package body Spark_Tests is
       State : Actuator_State := Init (Limits);
       Cmd : Command := (Target_Deflection => 0.7, Rate_Limit => 0.3);
       New_State : Actuator_State;
+      Faulted : Actuator_State;
+      E_State : Actuator_State;
    begin
       Assert (State.Current_Mode = Idle, "Init should set Idle mode");
       New_State := Step (State, Cmd);
       Assert (New_State.Current_Mode = Active, "Step should set Active mode");
       Assert (New_State.Current_Deflection = 0.7, "Deflection should be 0.7");
       Assert (Is_Safe (New_State), "State should be safe after valid step");
+      Faulted := Fault_Handler (New_State);
+      Assert (Faulted.Current_Mode = Fault, "Fault_Handler should set Fault mode");
+      Assert (not Is_Safe (Faulted), "Faulted state is not safe");
+      E_State := Emergency_Stop (New_State);
+      Assert (E_State.Current_Mode = Emergency, "Emergency_Stop should set Emergency mode");
+      Assert (E_State.Current_Deflection = 0.0, "Emergency deflection should be zero");
+      Assert (not Is_Safe (E_State), "Emergency state is not safe");
+   end Run;
+
+   function Name (T : Test_Power_Allocation) return Message_String is
+   begin
+      return new String'("Test Power Allocation");
+   end Name;
+
+   procedure Run (T : in out Test_Power_Allocation) is
+      OK_Alloc : Boolean;
+      Bad_Alloc : Boolean;
+   begin
+      OK_Alloc := Allocate_Power (Left_Aileron, 25.0);
+      Assert (OK_Alloc, "25.0 within capacity");
+      Bad_Alloc := Allocate_Power (Right_Aileron, 250.0);
+      Assert (not Bad_Alloc, "250.0 exceeds capacity");
+      Assert (Get_Power_Status (Left_Aileron) = Normal, "25.0 status should be Normal");
+   end Run;
+
+   function Name (T : Test_Power_Shedding) return Message_String is
+   begin
+      return new String'("Test Power Shedding");
+   end Name;
+
+   procedure Run (T : in out Test_Power_Shedding) is
+      Load : Bus_Load;
+      Overloaded : Boolean;
+   begin
+      Allocate_Power (Left_Aileron, 30.0);
+      Allocate_Power (Right_Aileron, 30.0);
+      Allocate_Power (Elevator, 30.0);
+      Load := Get_Bus_Load (Bus_A);
+      Assert (Load.Current_Load >= 90.0, "Total load should exceed 90.0");
+      Overloaded := Is_Bus_Overloaded (Bus_A);
+      Assert (Overloaded, "Bus A should be overloaded");
+      Assert (Shed_Load (Bus_A, Left_Aileron), "Shed load should succeed");
+      Assert (Get_Power_Status (Left_Aileron) = Critical, "Shedded actuator is Critical");
    end Run;
 
    function Suite return Access_Test_Suite is
@@ -113,6 +173,8 @@ package body Spark_Tests is
       Add_Test (Suite_Ptr, new Test_Health_Status);
       Add_Test (Suite_Ptr, new Test_Limits);
       Add_Test (Suite_Ptr, new Test_Controller);
+      Add_Test (Suite_Ptr, new Test_Power_Allocation);
+      Add_Test (Suite_Ptr, new Test_Power_Shedding);
       return Suite_Ptr;
    end Suite;
 end Spark_Tests;
