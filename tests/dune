@@ -7,3 +7,8 @@
  (name integration_test)
  (modules integration_test)
  (libraries actuator_engine actuator_binding alcotest ctypes-foreign))
+
+(test
+ (name fuser_test)
+ (modules fuser_test)
+ (libraries actuator_engine alcotest))
