@@ -16,17 +16,13 @@ typedef struct {
     deflection_t min_deflection;
 } limits_t;
 
-typedef enum {
-    HEALTHY = 0,
-    DEGRADED = 1,
-    FAILED = 2
-} health_status_t;
+typedef enum { HEALTHY = 0, DEGRADED = 1, FAILED = 2 } health_status_t;
 
 bool validate_command(double current, double target, double max_rate, double max_def, double min_def);
-command_t apply_limits(command_t cmd, limits_t limits);
-bool is_within_limits(double value, limits_t limits);
-health_status_t check_overall_status(uint8_t pos_status, uint8_t temp_status, uint8_t curr_status, uint8_t hyd_status);
-command_t majority_vote(command_t c1, command_t c2, command_t c3, limits_t limits);
-bool is_consensus(command_t c1, command_t c2, command_t c3, double tolerance);
+void apply_limits(const command_t* cmd, const limits_t* limits, command_t* out);
+bool is_within_limits(double value, const limits_t* limits);
+health_status_t check_overall_status(int pos_status, int temp_status, int curr_status, int hyd_status);
+void majority_vote(const command_t* c1, const command_t* c2, const command_t* c3, const limits_t* limits, command_t* out);
+bool is_consensus(const command_t* c1, const command_t* c2, const command_t* c3, double tolerance);
 
 #endif
