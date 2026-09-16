@@ -1,5 +1,7 @@
 #include "actuator_ffi.h"
 
+void ocaml_force_link(void) { }
+
 extern bool spark_validate_command(float current, float target, float max_rate, float max_def, float min_def);
 extern command_t spark_apply_limits(command_t cmd, limits_t limits);
 extern bool spark_is_within_limits(float value, limits_t limits);

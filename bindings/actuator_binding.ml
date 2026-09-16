@@ -1,3 +1,6 @@
+external ocaml_force_link : unit -> unit = "ocaml_force_link"
+let () = ocaml_force_link ()
+
 open Ctypes
 open Foreign
 
