@@ -49,7 +49,7 @@ let to_actuator_commands (setpoints : (float * float) list) (rate_limits : float
     match sp, rates with
     | [], _ -> List.rev acc
     | _, [] -> List.rev acc
-    | (pos, vel) :: rest_sp, rate :: rest_rate ->
+    | (pos, _vel) :: rest_sp, rate :: rest_rate ->
         let cmd = { deflection = pos; rate_limit = rate } in
         zip_with_rate rest_sp rest_rate (cmd :: acc)
   in
