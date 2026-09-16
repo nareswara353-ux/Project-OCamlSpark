@@ -1,4 +1,12 @@
 with Interfaces.C; use Interfaces.C;
+with Actuator_Types; use Actuator_Types;
+with Actuator_Commands;
+with Actuator_Limits;
+with Redundancy_Voter;
+with Health_Monitor; use Health_Monitor;
+with Actuator_Controller;
+with Power_Distribution;
+with Debug_Interface;
 
 package body Spark_Exports is
 
