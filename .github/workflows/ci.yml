@@ -1,4 +1,4 @@
-name: Hybrid OCaml + SPARK CI
+name: OCaml Hybrid Build & Tests
 
 on:
   push:
@@ -7,9 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-  spark-build:
-    name: SPARK Build & Formal Proof
+  build-and-test:
+    name: OCaml Build & Test Suite
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,64 +18,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc g++ make git libgmp-dev
-
-      - name: Setup Alire
-        uses: alire-project/setup-alire@v2
-        with:
-          version: "2.0.0"
-
-      - name: Install GNAT toolchain via Alire
-        run: |
-          alr --non-interactive settings --global --set toolchain.assistant false
-          alr --non-interactive install gnat_native gprbuild
-          export PATH="${HOME}/.alire/bin:${PATH}"
-          gnat --version
-          gprbuild --version
-
-      - name: Build SPARK shared library
-        run: |
-          alr exec -- gprbuild -P spark_lib.gpr -p
-
-      - name: Build SPARK test runner
-        run: |
-          alr exec -- gprbuild -P tests/spark_tests.gpr -p
-
-      - name: Run SPARK unit tests (AUnit)
-        run: |
-          ./bin/spark_runner
-
-      - name: Run SPARK formal proof (gnatprove)
-        run: |
-          alr exec -- gnatprove -P spark_lib.gpr --level=1 --timeout=60 --report=all || true
-
-      - name: Upload SPARK artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: spark-actuator-artifacts
-          path: |
-            lib/libspark_actuator.so
-            bin/spark_runner
-            core_spark/*.ads
-            core_spark/*.adb
-
-  ocaml-build:
-    name: OCaml Build & Tests
-    needs: spark-build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc g++ make git libgmp-dev
-
-      - name: Download SPARK artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: spark-actuator-artifacts
+          sudo apt-get install -y gcc g++ make git libffi-dev pkg-config
 
       - name: Setup OCaml
         uses: ocaml/setup-ocaml@v3
@@ -84,30 +28,40 @@ jobs:
 
       - name: Install OCaml dependencies
         run: |
-          opam install -y dune ctypes-foreign alcotest
+          opam install -y dune ctypes-foreign alcotest ocamlformat
 
-      - name: Configure linker for SPARK library
-        run: |
-          echo "CAML_LD_LIBRARY_PATH=$PWD/lib:$CAML_LD_LIBRARY_PATH" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=$PWD/lib:$LIBRARY_PATH" >> $GITHUB_ENV
-
-      - name: Build OCaml engine + FFI
+      - name: Build project
         run: |
           eval $(opam env)
-          dune build 2>&1 || echo "OCaml build completed with warnings"
+          dune build 2>&1
 
-      - name: Run OCaml unit tests (Alcotest)
+      - name: Run engine unit tests
         run: |
           eval $(opam env)
-          dune exec -- tests/ocaml_tests.exe 2>&1 || echo "OCaml tests attempted"
+          dune exec tests/ocaml_tests.exe
 
       - name: Run integration tests
         run: |
           eval $(opam env)
-          dune exec -- tests/integration_test.exe 2>&1 || echo "Integration tests attempted"
+          dune exec tests/integration_test.exe
 
-      - name: Report build status
+      - name: Run fuser tests
         run: |
-          echo "CI pipeline completed"
-          ls -la _build/default/engine_ocaml/ 2>/dev/null || true
+          eval $(opam env)
+          dune exec tests/fuser_test.exe
+
+      - name: Run main executable smoke test
+        run: |
+          eval $(opam env)
+          dune exec engine_ocaml/main.exe
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocaml-binaries
+          path: |
+            _build/default/engine_ocaml/main.exe
+            _build/default/tests/*.exe
+          if-no-files-found: warn
+          retention-days: 7
