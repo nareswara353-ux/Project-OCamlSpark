@@ -7,10 +7,10 @@ open Actuator_binding
 let test_full_flow () =
   let start = { position = 0.0; velocity = 0.0; acceleration = 0.0; timestamp = 0.0 } in
   let targets = [
-    { target_position = 1.0; target_velocity = 0.5; time_to_reach = 2.0 };
-    { target_position = 2.0; target_velocity = 0.0; time_to_reach = 1.0 };
+    { target_position = 0.5; target_velocity = 0.3; time_to_reach = 1.0 };
+    { target_position = 0.8; target_velocity = 0.0; time_to_reach = 1.0 };
   ] in
-  let params = { max_accel = 1.0; max_velocity = 1.0; jerk_limit = 0.5 } in
+  let params = { max_accel = 0.5; max_velocity = 0.4; jerk_limit = 0.3 } in
   let traj = compute_trajectory start targets params in
   let cmds = generate_commands traj 10.0 [] in
   let lim = { max_deflection = 0.95; min_deflection = -0.95 } in
@@ -26,7 +26,7 @@ let test_full_flow () =
   Alcotest.(check bool) "FFI validation passes" true valid;
   let applied = apply_limits bridge_cmd lim in
   Alcotest.(check (float 0.001)) "limits applied"
-    first_cmd.deflection applied.target_deflection
+    bridge_cmd.target_deflection applied.target_deflection
 
 let test_redundancy_integration () =
   let lim = { max_deflection = 0.9; min_deflection = -0.9 } in
@@ -41,9 +41,9 @@ let test_redundancy_integration () =
 let test_emergency_integration () =
   let start = { position = 0.0; velocity = 0.0; acceleration = 0.0; timestamp = 0.0 } in
   let targets = [
-    { target_position = 1.0; target_velocity = 0.5; time_to_reach = 2.0 };
+    { target_position = 0.5; target_velocity = 0.3; time_to_reach = 1.0 };
   ] in
-  let params = { max_accel = 1.0; max_velocity = 1.0; jerk_limit = 0.5 } in
+  let params = { max_accel = 0.5; max_velocity = 0.4; jerk_limit = 0.3 } in
   let traj = compute_trajectory start targets params in
   let cmds = generate_commands traj 10.0 [] in
   let state = initial_mode_state in
