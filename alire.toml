@@ -13,18 +13,3 @@ executables = ["actuator_controller"]
 gnat = ">=13.0.0"
 gnatprove = "^13.0.0"
 gprbuild = "^22.0.0"
-
-[build-switches]
-"*".optimization = "performance"
-"*".debug_info = "no"
-"*".runtime_checks = "default"
-"*".contracts = "yes"
-"*".style_checks = "no"
-"*".compile_checks = "warnings"
-
-[configuration]
-generate_ada = false
-generate_c = false
-auto_gprbuild = true
-output_dir = "bin"
-build_dir = "obj"
