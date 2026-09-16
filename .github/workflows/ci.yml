@@ -36,16 +36,25 @@ jobs:
         run: |
           alr exec -- gprbuild -P spark_lib.gpr -p
 
+      - name: Build SPARK test runner
+        run: |
+          alr exec -- gprbuild -P tests/spark_tests.gpr -p
+
+      - name: Run SPARK unit tests (AUnit)
+        run: |
+          ./bin/spark_runner
+
       - name: Run SPARK formal proof (gnatprove)
         run: |
           alr exec -- gnatprove -P spark_lib.gpr --level=1 --timeout=60 --report=all || true
 
-      - name: Upload SPARK library artifact
+      - name: Upload SPARK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: spark-actuator-lib
+          name: spark-actuator-artifacts
           path: |
             lib/libspark_actuator.so
+            bin/spark_runner
             core_spark/*.ads
             core_spark/*.adb
 
@@ -62,10 +71,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc g++ make git libgmp-dev
 
-      - name: Download SPARK library artifact
+      - name: Download SPARK artifacts
         uses: actions/download-artifact@v4
         with:
-          name: spark-actuator-lib
+          name: spark-actuator-artifacts
 
       - name: Setup OCaml
         uses: ocaml/setup-ocaml@v3
