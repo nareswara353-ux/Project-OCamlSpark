@@ -4,12 +4,12 @@ open Foreign
 type command = { target_deflection : float; rate_limit : float }
 type limits = { max_deflection : float; min_deflection : float }
 
-let command_struct = structure "command_t"
+let command_struct : [ `Struct ] structure typ = structure "command_t"
 let command_target_deflection = field command_struct "target_deflection" float
 let command_rate_limit = field command_struct "rate_limit" float
 let () = seal command_struct
 
-let limits_struct = structure "limits_t"
+let limits_struct : [ `Struct ] structure typ = structure "limits_t"
 let limits_max_deflection = field limits_struct "max_deflection" float
 let limits_min_deflection = field limits_struct "min_deflection" float
 let () = seal limits_struct
