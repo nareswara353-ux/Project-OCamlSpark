@@ -1,0 +1,11 @@
+version = 0.26.2
+profile = default
+module-item-spacing = compact
+break-separators = after
+dock-collection-brackets = true
+field-space = loose
+space-around-arrays = false
+space-around-lists = false
+space-around-records = false
+type-decl = sparse
+wrap-fun-args = true
