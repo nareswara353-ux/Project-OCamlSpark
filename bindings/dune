@@ -6,4 +6,4 @@
  (foreign_stubs
   (language c)
   (names spark_stubs actuator_ffi actuator_bridge ocaml_glue)
-  (flags -Wall -O2 -I../core_spark -I.)))
+  (flags -Wall -O2 -fPIC -I../core_spark -I.)))
