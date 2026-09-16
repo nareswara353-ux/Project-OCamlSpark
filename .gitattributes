@@ -1,0 +1,22 @@
+* text=auto eol=lf
+
+*.ads text
+*.adb text
+*.ml text
+*.mli text
+*.c text
+*.h text
+*.gpr text
+*.toml text
+*.yml text
+*.md text
+
+*.so binary
+*.o binary
+*.ali binary
+*.a binary
+*.exe binary
+
+*.gpr linguist-language=Ada
+*.ads linguist-language=Ada
+*.adb linguist-language=Ada
