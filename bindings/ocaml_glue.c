@@ -13,7 +13,6 @@ actuator_cmd_t glue_send_trajectory_point(setpoint_t point, float max_rate) {
         .deflection = point.position,
         .rate_limit = max_rate
     };
-    command_t spark_cmd = bridge_command_to_spark(cmd);
     controller_state = spark_step(controller_state, spark_cmd);
     actuator_cmd_t result = {
         .target_deflection = controller_state.current_deflection,
@@ -58,7 +57,6 @@ actuator_cmd_t glue_get_emergency_command(float deflection) {
         .deflection = deflection,
         .rate_limit = 0.01
     };
-    command_t spark_cmd = bridge_command_to_spark(cmd);
     controller_state = spark_emergency_stop(controller_state);
     actuator_cmd_t result = {
         .target_deflection = deflection,

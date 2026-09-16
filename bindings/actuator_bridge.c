@@ -47,7 +47,6 @@ ocaml_command_t bridge_command_from_spark(command_t cmd) {
 
 bool bridge_validate_ocaml_command(ocaml_command_t cmd, float max_def, float min_def) {
     command_t spark_cmd = bridge_command_to_spark(cmd);
-    limits_t limits = bridge_limits_to_spark(max_def, min_def);
     return spark_validate_command(0.0, spark_cmd.target_deflection, spark_cmd.rate_limit, max_def, min_def);
 }
 

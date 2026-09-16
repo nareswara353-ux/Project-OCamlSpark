@@ -67,6 +67,12 @@ typedef enum {
     EMERGENCY_BUS = 2
 } power_bus_t;
 
+actuator_state_t spark_init(limits_t limits);
+actuator_state_t spark_step(actuator_state_t state, command_t cmd);
+actuator_state_t spark_fault_handler(actuator_state_t state);
+actuator_state_t spark_emergency_stop(actuator_state_t state);
+bool spark_is_safe(actuator_state_t state);
+
 bool spark_validate_command(float current, float target, float max_rate, float max_def, float min_def);
 command_t spark_apply_limits(command_t cmd, limits_t limits);
 bool spark_is_within_limits(float value, limits_t limits);
@@ -84,4 +90,17 @@ bool spark_is_bus_overloaded(int bus);
 bool spark_shed_load(int bus, int id);
 int spark_get_power_status(int id);
 
+typedef enum {
+    BUS_A = 0,
+    BUS_B = 1,
+    EMERGENCY_BUS = 2
+} power_bus_t;
+
+actuator_state_t spark_init(limits_t limits);
+actuator_state_t spark_step(actuator_state_t state, command_t cmd);
+actuator_state_t spark_fault_handler(actuator_state_t state);
+actuator_state_t spark_emergency_stop(actuator_state_t state);
+bool spark_is_safe(actuator_state_t state);
+
 #endif
+
