@@ -1,6 +1,9 @@
 #include "spark_export.h"
+#include <stdio.h>
 
 bool spark_validate_command(double current, double target, double max_rate, double max_def, double min_def) {
+    fprintf(stderr, "[DBG-STUB] spark_validate_command: current=%f target=%f max_rate=%f max_def=%f min_def=%f\n",
+            current, target, max_rate, max_def, min_def);
     (void)current; (void)max_rate;
     return target >= min_def && target <= max_def;
 }

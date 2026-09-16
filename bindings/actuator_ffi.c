@@ -1,4 +1,5 @@
 #include "actuator_ffi.h"
+#include <stdio.h>
 
 extern bool   spark_validate_command(double, double, double, double, double);
 extern void   spark_apply_limits(const command_t*, const limits_t*, command_t*);
@@ -10,7 +11,11 @@ extern bool   spark_is_consensus(const command_t*, const command_t*, const comma
 void ocaml_force_link(void) { }
 
 bool validate_command(double current, double target, double max_rate, double max_def, double min_def) {
-    return spark_validate_command(current, target, max_rate, max_def, min_def);
+    fprintf(stderr, "[DBG] validate_command called: current=%f target=%f max_rate=%f max_def=%f min_def=%f\n",
+            current, target, max_rate, max_def, min_def);
+    bool r = spark_validate_command(current, target, max_rate, max_def, min_def);
+    fprintf(stderr, "[DBG] validate_command returns: %d\n", r);
+    return r;
 }
 
 void apply_limits(const command_t* cmd, const limits_t* limits, command_t* out) {
