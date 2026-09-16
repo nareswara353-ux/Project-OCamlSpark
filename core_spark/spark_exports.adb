@@ -1,6 +1,6 @@
 with Interfaces.C; use Interfaces.C;
 
-package body Spark_Exports with SPARK_Mode is
+package body Spark_Exports is
 
    function To_Native_Command (C : C_Command) return Command is
      (Target_Deflection => Deflection_Range (C.Target_Deflection),

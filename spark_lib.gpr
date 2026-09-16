@@ -19,7 +19,7 @@ library project Spark_Lib is
    for Library_Standalone use "encapsulated";
 
    package Compiler is
-      for Switches ("Ada") use ("-gnatwa", "-gnatq", "-gnatQ", "-gnatf", "-gnatyg", "-fPIC");
+      for Switches ("Ada") use ("-gnatf", "-fPIC", "-O2");
    end Compiler;
 
    package Binder is

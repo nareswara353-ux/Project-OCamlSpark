@@ -1,4 +1,4 @@
-package Actuator_Types with SPARK_Mode, Pure is
+package Actuator_Types with SPARK_Mode is
    type Actuator_ID is (Left_Aileron, Right_Aileron, Elevator, Rudder);
    subtype Deflection_Range is Float range -1.0 .. 1.0;
    type Command is record

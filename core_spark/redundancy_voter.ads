@@ -1,4 +1,5 @@
 with Actuator_Types; use Actuator_Types;
+with Actuator_Commands; use Actuator_Commands;
 
 package Redundancy_Voter with SPARK_Mode is
    function Majority_Vote (Cmd1, Cmd2, Cmd3 : Command; Limits : Limit_Record) return Command
