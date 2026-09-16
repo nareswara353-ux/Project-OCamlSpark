@@ -38,9 +38,9 @@ typedef struct {
 } actuator_state_t;
 
 typedef enum {
-    OK = 0,
-    WARNING = 1,
-    CRITICAL = 2
+    SENSOR_OK = 0,
+    SENSOR_WARNING = 1,
+    SENSOR_CRITICAL = 2
 } sensor_health_t;
 
 typedef struct {
@@ -51,9 +51,9 @@ typedef struct {
 } channel_health_t;
 
 typedef enum {
-    NORMAL = 0,
-    OVERLOADED = 1,
-    CRITICAL = 2
+    LOAD_NORMAL = 0,
+    LOAD_OVERLOADED = 1,
+    LOAD_CRITICAL = 2
 } load_status_t;
 
 typedef struct {
@@ -70,23 +70,18 @@ typedef enum {
 bool spark_validate_command(float current, float target, float max_rate, float max_def, float min_def);
 command_t spark_apply_limits(command_t cmd, limits_t limits);
 bool spark_is_within_limits(float value, limits_t limits);
-health_status_t spark_check_overall_status(uint8_t pos_status, uint8_t temp_status, uint8_t curr_status, uint8_t hyd_status);
+int  spark_check_overall_status(int pos, int temp, int curr, int hyd);
 command_t spark_majority_vote(command_t c1, command_t c2, command_t c3, limits_t limits);
 bool spark_is_consensus(command_t c1, command_t c2, command_t c3, float tolerance);
-deflection_t spark_get_current_deflection(uint8_t id);
-float spark_get_temperature(uint8_t id);
-float spark_get_hydraulic_pressure(uint8_t id);
-channel_health_t spark_get_channel_health(uint8_t id);
-health_status_t spark_get_overall_status(uint8_t id);
-bool spark_allocate_power(uint8_t id, float required_power);
-bus_load_t spark_get_bus_load(uint8_t bus);
-bool spark_is_bus_overloaded(uint8_t bus);
-bool spark_shed_load(uint8_t bus, uint8_t id);
-load_status_t spark_get_power_status(uint8_t id);
-actuator_state_t spark_init(limits_t limits);
-actuator_state_t spark_step(actuator_state_t state, command_t cmd);
-actuator_state_t spark_fault_handler(actuator_state_t state);
-actuator_state_t spark_emergency_stop(actuator_state_t state);
-bool spark_is_safe(actuator_state_t state);
+float spark_get_current_deflection(int id);
+float spark_get_temperature(int id);
+float spark_get_hydraulic_pressure(int id);
+channel_health_t spark_get_channel_health(int id);
+int spark_get_overall_status(int id);
+bool spark_allocate_power(int id, float required_power);
+bus_load_t spark_get_bus_load(int bus);
+bool spark_is_bus_overloaded(int bus);
+bool spark_shed_load(int bus, int id);
+int spark_get_power_status(int id);
 
 #endif

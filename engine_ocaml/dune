@@ -5,5 +5,4 @@
 
 (executable
  (name actuator_main)
- (modules main)
  (libraries actuator_engine actuator_binding ctypes-foreign))
