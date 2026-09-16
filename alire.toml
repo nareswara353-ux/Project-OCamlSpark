@@ -5,7 +5,7 @@ maintainers = ["Hybrid Arch Team <arch@hybrid.com>"]
 maintainers-logins = ["hybrid-arch"]
 description = "OCaml trajectory optimizer with SPARK-verified actuator commands"
 licenses = "GPL-3.0-only"
-tags = ["mission-critical", "aerospace", "hybrid", "spark", "ocaml"]
+tags = ["aerospace", "hybrid", "spark", "ocaml", "safety"]
 
 executables = ["actuator_controller"]
 
