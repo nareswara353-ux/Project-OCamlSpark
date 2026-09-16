@@ -1,12 +1,14 @@
 (test
  (name ocaml_tests)
  (modules ocaml_tests)
- (libraries actuator_engine actuator_binding alcotest ctypes-foreign))
+ (libraries actuator_engine actuator_binding alcotest ctypes-foreign)
+ (link_flags (-cclib -Wl,--export-dynamic)))
 
 (test
  (name integration_test)
  (modules integration_test)
- (libraries actuator_engine actuator_binding alcotest ctypes-foreign))
+ (libraries actuator_engine actuator_binding alcotest ctypes-foreign)
+ (link_flags (-cclib -Wl,--export-dynamic)))
 
 (test
  (name fuser_test)

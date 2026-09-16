@@ -7,4 +7,5 @@
 (executable
  (name main)
  (modules main)
- (libraries actuator_engine actuator_binding ctypes-foreign))
+ (libraries actuator_engine actuator_binding ctypes-foreign)
+ (link_flags (-cclib -Wl,--export-dynamic)))
