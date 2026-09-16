@@ -1,5 +1,0 @@
-(workspace
- (profile default)
- (lock_dir
-  (path .)
-  (dune_package dune-package)))
