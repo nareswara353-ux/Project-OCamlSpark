@@ -6,21 +6,14 @@ open Actuator_binding
 
 let build_sample_trajectory () =
   let start = {
-    position = 0.0;
-    velocity = 0.0;
-    acceleration = 0.0;
-    timestamp = 0.0;
+    position = 0.0; velocity = 0.0; acceleration = 0.0; timestamp = 0.0;
   } in
   let targets = [
     { target_position = 0.5; target_velocity = 0.3; time_to_reach = 1.5 };
     { target_position = 0.8; target_velocity = 0.1; time_to_reach = 1.0 };
     { target_position = 0.0; target_velocity = 0.0; time_to_reach = 2.0 };
   ] in
-  let params = {
-    max_accel = 0.8;
-    max_velocity = 0.6;
-    jerk_limit = 0.4;
-  } in
+  let params = { max_accel = 0.8; max_velocity = 0.6; jerk_limit = 0.4 } in
   compute_trajectory start targets params
 
 let print_command index cmd =
@@ -29,28 +22,33 @@ let print_command index cmd =
 
 let run_control_loop traj =
   let control_freq = 20.0 in
-  let rate_limits = [] in
-  let commands = generate_commands traj control_freq rate_limits in
+  let commands = generate_commands traj control_freq [] in
   let lim = { max_deflection = 0.95; min_deflection = -0.95 } in
   let initial_state = initial_mode_state in
   let rec loop cmds idx state =
     match cmds with
-    | [] ->
-        Printf.printf "Trajectory complete: %d commands executed\n" idx
+    | [] -> Printf.printf "Trajectory complete: %d commands executed\n" idx
     | cmd :: rest ->
+        let bridge_cmd = {
+          target_deflection = cmd.deflection;
+          rate_limit = cmd.rate_limit;
+        } in
         let valid =
-          validate_command 0.0 cmd.deflection cmd.rate_limit
+          validate_command 0.0 bridge_cmd.target_deflection bridge_cmd.rate_limit
             lim.max_deflection lim.min_deflection
         in
         if valid then begin
-          let limited = apply_limits cmd lim in
-          let processed, new_state = process_command state limited in
+          let limited = apply_limits bridge_cmd lim in
+          let act_cmd = {
+            deflection = limited.target_deflection;
+            rate_limit = limited.rate_limit;
+          } in
+          let processed, new_state = process_command state act_cmd in
           print_command idx processed;
           loop rest (idx + 1) new_state
         end else begin
-          Printf.printf "[%03d] INVALID command rejected: deflection=%.4f\n" idx cmd.deflection;
-          let emergency_state = transition state Emergency true in
-          ignore emergency_state;
+          Printf.printf "[%03d] INVALID command rejected: deflection=%.4f\n"
+            idx cmd.deflection;
           loop rest (idx + 1) state
         end
   in

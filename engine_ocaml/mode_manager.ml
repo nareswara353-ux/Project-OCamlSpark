@@ -10,11 +10,11 @@ let initial_mode_state = {
   emergency_override = false;
 }
 
-let transition state new_mode override =
+let transition _state new_mode override =
   match new_mode with
-  | Manual -> { state with current_mode = Manual; emergency_override = override }
-  | AutoPilot -> { state with current_mode = AutoPilot; emergency_override = override }
-  | Emergency -> { state with current_mode = Emergency; emergency_override = true }
+  | Manual -> { current_mode = Manual; emergency_override = override }
+  | AutoPilot -> { current_mode = AutoPilot; emergency_override = override }
+  | Emergency -> { current_mode = Emergency; emergency_override = true }
 
 let is_mode_allowed mode override =
   match mode with
@@ -37,11 +37,9 @@ let process_command state cmd =
   let adjusted_cmd = apply_mode_limits cmd state.current_mode in
   (adjusted_cmd, state)
 
-let emergency_override_command state override_deflection =
+let emergency_override_command _state override_deflection =
   let emergency_cmd = { deflection = override_deflection; rate_limit = 0.01 } in
-  let new_state =
-    { state with current_mode = Emergency; emergency_override = true }
-  in
+  let new_state = { current_mode = Emergency; emergency_override = true } in
   (emergency_cmd, new_state)
 
 let is_emergency_active state =
