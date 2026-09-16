@@ -10,7 +10,7 @@ command_t bridge_command_to_spark(ocaml_command_t cmd) {
     return result;
 }
 
-limits_t bridge_limits_to_spark(float max_def, float min_def) {
+limits_t bridge_limits_to_spark(double max_def, double min_def) {
     limits_t result;
     result.max_deflection = max_def;
     result.min_deflection = min_def;
@@ -45,19 +45,19 @@ ocaml_command_t bridge_command_from_spark(command_t cmd) {
     return result;
 }
 
-bool bridge_validate_ocaml_command(ocaml_command_t cmd, float max_def, float min_def) {
+bool bridge_validate_ocaml_command(ocaml_command_t cmd, double max_def, double min_def) {
     command_t spark_cmd = bridge_command_to_spark(cmd);
     return spark_validate_command(0.0, spark_cmd.target_deflection, spark_cmd.rate_limit, max_def, min_def);
 }
 
-ocaml_command_t bridge_apply_ocaml_limits(ocaml_command_t cmd, float max_def, float min_def) {
+ocaml_command_t bridge_apply_ocaml_limits(ocaml_command_t cmd, double max_def, double min_def) {
     command_t spark_cmd = bridge_command_to_spark(cmd);
     limits_t limits = bridge_limits_to_spark(max_def, min_def);
     command_t result = spark_apply_limits(spark_cmd, limits);
     return bridge_command_from_spark(result);
 }
 
-ocaml_command_t bridge_majority_vote_ocaml(ocaml_command_t c1, ocaml_command_t c2, ocaml_command_t c3, float max_def, float min_def) {
+ocaml_command_t bridge_majority_vote_ocaml(ocaml_command_t c1, ocaml_command_t c2, ocaml_command_t c3, double max_def, double min_def) {
     command_t spark_c1 = bridge_command_to_spark(c1);
     command_t spark_c2 = bridge_command_to_spark(c2);
     command_t spark_c3 = bridge_command_to_spark(c3);
@@ -66,7 +66,7 @@ ocaml_command_t bridge_majority_vote_ocaml(ocaml_command_t c1, ocaml_command_t c
     return bridge_command_from_spark(result);
 }
 
-bool bridge_is_consensus_ocaml(ocaml_command_t c1, ocaml_command_t c2, ocaml_command_t c3, float tolerance) {
+bool bridge_is_consensus_ocaml(ocaml_command_t c1, ocaml_command_t c2, ocaml_command_t c3, double tolerance) {
     command_t spark_c1 = bridge_command_to_spark(c1);
     command_t spark_c2 = bridge_command_to_spark(c2);
     command_t spark_c3 = bridge_command_to_spark(c3);

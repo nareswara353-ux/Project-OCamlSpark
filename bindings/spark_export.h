@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef float deflection_t;
+typedef double deflection_t;
 
 typedef struct {
     deflection_t target_deflection;
-    float rate_limit;
+    double rate_limit;
 } command_t;
 
 typedef struct {
@@ -57,8 +57,8 @@ typedef enum {
 } load_status_t;
 
 typedef struct {
-    float current_load;
-    float max_capacity;
+    double current_load;
+    double max_capacity;
 } bus_load_t;
 
 typedef enum {
@@ -67,18 +67,18 @@ typedef enum {
     EMERGENCY_BUS = 2
 } power_bus_t;
 
-bool spark_validate_command(float current, float target, float max_rate, float max_def, float min_def);
+bool spark_validate_command(double current, double target, double max_rate, double max_def, double min_def);
 command_t spark_apply_limits(command_t cmd, limits_t limits);
-bool spark_is_within_limits(float value, limits_t limits);
+bool spark_is_within_limits(double value, limits_t limits);
 int  spark_check_overall_status(int pos, int temp, int curr, int hyd);
 command_t spark_majority_vote(command_t c1, command_t c2, command_t c3, limits_t limits);
-bool spark_is_consensus(command_t c1, command_t c2, command_t c3, float tolerance);
-float spark_get_current_deflection(int id);
-float spark_get_temperature(int id);
-float spark_get_hydraulic_pressure(int id);
+bool spark_is_consensus(command_t c1, command_t c2, command_t c3, double tolerance);
+double spark_get_current_deflection(int id);
+double spark_get_temperature(int id);
+double spark_get_hydraulic_pressure(int id);
 channel_health_t spark_get_channel_health(int id);
 int spark_get_overall_status(int id);
-bool spark_allocate_power(int id, float required_power);
+bool spark_allocate_power(int id, double required_power);
 bus_load_t spark_get_bus_load(int bus);
 bool spark_is_bus_overloaded(int bus);
 bool spark_shed_load(int bus, int id);

@@ -8,7 +8,7 @@ static bool trajectory_active = false;
 static limits_t global_limits = {0.95, -0.95};
 static actuator_state_t controller_state = {0};
 
-actuator_cmd_t glue_send_trajectory_point(setpoint_t point, float max_rate) {
+actuator_cmd_t glue_send_trajectory_point(setpoint_t point, double max_rate) {
     ocaml_command_t cmd = { point.position, max_rate };
     command_t spark_cmd = bridge_command_to_spark(cmd);
     controller_state = spark_step(controller_state, spark_cmd);
@@ -44,21 +44,21 @@ void glue_set_mode(glue_flight_mode_t mode) {
     }
 }
 
-actuator_cmd_t glue_get_emergency_command(float deflection) {
+actuator_cmd_t glue_get_emergency_command(double deflection) {
     controller_state = spark_emergency_stop(controller_state);
     actuator_cmd_t result = { deflection, 0.01f };
     return result;
 }
 
-float glue_get_min_deflection(void) {
+double glue_get_min_deflection(void) {
     return global_limits.min_deflection;
 }
 
-float glue_get_max_deflection(void) {
+double glue_get_max_deflection(void) {
     return global_limits.max_deflection;
 }
 
-bool glue_validate_external_command(float deflection, float rate) {
+bool glue_validate_external_command(double deflection, double rate) {
     return spark_validate_command(
         0.0f, deflection, rate,
         global_limits.max_deflection, global_limits.min_deflection);

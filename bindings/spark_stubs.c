@@ -1,6 +1,6 @@
 #include "spark_export.h"
 
-bool spark_validate_command(float current, float target, float max_rate, float max_def, float min_def) {
+bool spark_validate_command(double current, double target, double max_rate, double max_def, double min_def) {
     (void)current; (void)max_rate; (void)max_def; (void)min_def;
     return target >= -1.0f && target <= 1.0f;
 }
@@ -12,7 +12,7 @@ command_t spark_apply_limits(command_t cmd, limits_t limits) {
     return r;
 }
 
-bool spark_is_within_limits(float value, limits_t limits) {
+bool spark_is_within_limits(double value, limits_t limits) {
     return value >= limits.min_deflection && value <= limits.max_deflection;
 }
 
@@ -32,19 +32,19 @@ command_t spark_majority_vote(command_t c1, command_t c2, command_t c3, limits_t
     return c3;
 }
 
-bool spark_is_consensus(command_t c1, command_t c2, command_t c3, float tol) {
-    float d12 = c1.target_deflection - c2.target_deflection;
-    float d23 = c2.target_deflection - c3.target_deflection;
-    float d13 = c1.target_deflection - c3.target_deflection;
+bool spark_is_consensus(command_t c1, command_t c2, command_t c3, double tol) {
+    double d12 = c1.target_deflection - c2.target_deflection;
+    double d23 = c2.target_deflection - c3.target_deflection;
+    double d13 = c1.target_deflection - c3.target_deflection;
     if (d12 < 0) d12 = -d12;
     if (d23 < 0) d23 = -d23;
     if (d13 < 0) d13 = -d13;
     return d12 <= tol && d23 <= tol && d13 <= tol;
 }
 
-float spark_get_current_deflection(int id) { (void)id; return 0.0f; }
-float spark_get_temperature(int id) { (void)id; return 25.0f; }
-float spark_get_hydraulic_pressure(int id) { (void)id; return 3000.0f; }
+double spark_get_current_deflection(int id) { (void)id; return 0.0f; }
+double spark_get_temperature(int id) { (void)id; return 25.0f; }
+double spark_get_hydraulic_pressure(int id) { (void)id; return 3000.0f; }
 
 channel_health_t spark_get_channel_health(int id) {
     (void)id;
@@ -54,7 +54,7 @@ channel_health_t spark_get_channel_health(int id) {
 
 int spark_get_overall_status(int id) { (void)id; return 0; }
 
-bool spark_allocate_power(int id, float p) {
+bool spark_allocate_power(int id, double p) {
     (void)id;
     return p >= 0.0f && p <= 100.0f;
 }
