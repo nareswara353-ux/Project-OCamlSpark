@@ -1,8 +1,28 @@
 (library
  (name actuator_engine)
  (wrapped false)
- (modules trajectory_types optimizer setpoint_gen mode_manager trajectory fuser)
- (libraries ctypes-foreign))
+ (modules
+  trajectory_types
+  optimizer
+  setpoint_gen
+  mode_manager
+  trajectory
+  fuser
+  logger
+  error
+  time_util
+  result_util
+  ring_buffer
+  event_bus
+  telemetry
+  metrics
+  config
+  config_loader
+  validator
+  sanitizer
+  waypoint_parser
+  serializer)
+ (libraries ctypes-foreign unix))
 
 (executable
  (name main)
