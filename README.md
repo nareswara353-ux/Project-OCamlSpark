@@ -1,186 +1,88 @@
 # Flight Control Surface Actuator Controller
+## Hybrid Polyglot OCaml + SPARK (Ada) — High-Assurance Aerospace System
 
-Hybrid Polyglot OCaml + SPARK (Ada) — High-Assurance Aerospace System
+### Overview
+Hybrid system untuk kontrol aktuator permukaan penerbangan dengan:
+- **SPARK/Ada** (`core_spark/`): Komponen safety-critical terverifikasi formal (GNATprove)
+- **OCaml** (`engine_ocaml/`): Engine fungsional + utility modules
+- **C Glue** (`bindings/`): FFI dengan ABI pointer-based
+- **Tests** (`tests/`): 17 test suite (Alcotest)
+- **CI** (`.github/`): Stub-based pipeline (3–5 menit)
 
----
+### Struktur Engine OCaml (20 modul)
 
-## Overview
+**Core Domain**
+- `trajectory_types` — tipe dasar (state, waypoint, command)
+- `optimizer` — optimasi lintasan dengan velocity/accel clamping
+- `setpoint_gen` — interpolasi linier antar waypoint
+- `mode_manager` — FSM (Manual, AutoPilot, Emergency)
+- `trajectory` — API level tinggi
+- `fuser` — Kalman-style sensor fusion
 
-Proyek ini mengimplementasikan kontroler aktuator permukaan kendali penerbangan (aileron, elevator, rudder) dengan arsitektur hybrid:
+**Utility**
+- `logger` — structured logging (Debug/Info/Warn/Error)
+- `error` — error terstruktur + monadic helpers (`let*`, `let+`)
+- `time_util` — timestamps, ISO 8601, sampling
+- `result_util` — combinators (`all`, `any`, `tap`)
+- `ring_buffer` — circular buffer fixed-size
 
-- SPARK/Ada (core_spark/): Komponen safety-critical yang diverifikasi formal (GNATprove) — validasi perintah, voter redundansi triple, monitoring kesehatan, batas operasional, FSM controller, distribusi daya, dan antarmuka debug.
+**Infrastructure**
+- `event_bus` — pub-sub pattern
+- `telemetry` — snapshot runtime (1000-cap)
+- `metrics` — counter, gauge, histogram (p50/p99)
+- `config` / `config_loader` — konfigurasi + env vars
 
-- OCaml (engine_ocaml/): Mesin optimasi lintasan fungsional, pembangkit setpoint, manajer mode terbang, dan FFI ke SPARK via C-ABI.
+**Validation**
+- `validator` — validasi waypoint, trajectory, command
+- `sanitizer` — NaN/Inf cleanup + clamping
+- `waypoint_parser` — parser CSV-like
+- `serializer` — pipe-delimited round-trip
 
-- C Glue Layer (bindings/): Marshalling tipe, wrapper, dan callback antara OCaml dan SPARK.
-
-- Test Suite (tests/): AUnit untuk SPARK, Alcotest untuk OCaml, dan integration test end-to-end.
-
----
-
-## Table of Contents
-
-- [Arsitektur Folder](#arsitektur-folder)
-- [Prerequisites](#prerequisites)
-- [Build & Test](#build--test)
-- [Formal Verification (SPARK)](#formal-verification-spark)
-- [OCaml Design Principles](#ocaml-design-principles)
-- [Contribution Guidelines](#contribution-guidelines)
-- [Safety & Mission-Critical Assurance](#safety--mission-critical-assurance)
-- [Future Extensions](#future-extensions)
-- [License](#license)
-
----
-
-## Arsitektur Folder
-
-```
-.
-├── alire.toml                           # Alire manifest (GNAT/SPARK toolchain)
-├── actuator_controller.gpr              # GNAT project (build & proof)
-├── dune-project / dune / dune-workspace # Dune build configuration
-├── .github/workflows/ci.yml             # CI pipeline (GitHub Actions)
-│
-├── core_spark/                          # SPARK units (25+ files)
-│   ├── actuator_types.ads/adb
-│   ├── actuator_commands.ads/adb
-│   ├── redundancy_voter.ads/adb
-│   ├── health_monitor.ads/adb
-│   ├── actuator_limits.ads/adb
-│   ├── actuator_pkg.ads
-│   ├── debug_interface.ads/adb
-│   ├── power_distribution.ads/adb
-│   └── actuator_controller.ads/adb
-│
-├── bindings/                            # C FFI glue
-│   ├── spark_export.h
-│   ├── actuator_ffi.h / .c
-│   ├── actuator_bridge.h / .c
-│   └── ocaml_glue.h / .c
-│
-├── engine_ocaml/                        # OCaml functional engine
-│   ├── trajectory_types.ml/i
-│   ├── optimizer.ml/i
-│   ├── setpoint_gen.ml/i
-│   ├── mode_manager.ml/i
-│   ├── trajectory.ml/i
-│   └── dune
-│
-└── tests/                               # Test suites
-    ├── spark_tests.ads/adb
-    ├── ocaml_tests.ml/i
-    └── integration_test.ml
-```
-
----
-
-## Prerequisites
-
-Diperlukan:
-
-- SPARK/Ada toolchain: Alire, GNAT, GNATprove
-- OCaml: Opam, Dune (>= 3.12), libraries: ctypes-foreign, alcotest
-- Build tools: gcc, make, git
-
----
-
-## Build & Test
-
-### Build SPARK (formal proof & compilation)
+### Build & Test
 
 ```bash
-alr build
-alr exec -- gnatprove -P actuator_controller.gpr --level=1 --timeout=60
-```
-
-### Build OCaml engine + FFI
-
-```bash
+eval $(opam env)
 dune build
-```
 
-### Run tests
+make test-all            # semua 17 test
+make test-validator      # test spesifik
+make run                 # main.exe
+Test Coverage (17 suites)
+Suite	Coverage
+ocaml_tests	optimizer, setpoint_gen, mode, FFI binding
+integration_test	end-to-end FFI flow + emergency
+fuser_test	Kalman init & fuse cycle
+logger_test	level filter, context
+error_test	constructors, monadic helpers
+time_util_test	ISO 8601, durasi, sampling
+result_util_test	all, any, tap, conversions
+ring_buffer_test	FIFO, overwrite, fold
+event_bus_test	subscribe, publish, isolation
+telemetry_test	snapshot, history
+metrics_test	counter, gauge, histogram
+config_test	default, validate, builders
+config_loader_test	KV parse, env merge
+validator_test	waypoint/traj/command validation
+sanitizer_test	NaN/Inf, clamp, rate normalize
+waypoint_parser_test	parse, error, round-trip
+serializer_test	state, command, trajectory round-trip
+Konfigurasi via Environment
+bash
+export ACTUATOR_CONTROL_FREQ_HZ=50.0
+export ACTUATOR_MAX_DEFLECTION=0.9
+export ACTUATOR_LOG_MIN_LEVEL=DEBUG
+Load dengan: Config_loader.load ()
 
-```bash
-# SPARK unit tests (AUnit)
-alr exec -- ./obj/spark_tests
+FFI ABI Notes
+Ctypes.double (8-byte) cocok C double
 
-# OCaml unit tests (Alcotest)
-dune exec -- tests/ocaml_tests.exe
+Struct argument di-pass via pointer (bukan by-value) untuk hindari ABI mismatch
 
-# Integration tests
-dune exec -- tests/integration_test.exe
-```
+-Wl,--export-dynamic untuk ctypes symbol resolution
 
-### Full CI pipeline (GitHub Actions)
-
-Push ke branch main akan memicu:
-
-- Setup Alire & GNAT
-- Proof with gnatprove
-- Setup OCaml & Dune
-- Build FFI + binary
-- Run all test suites
-
----
-
-## Formal Verification (SPARK)
-
-Kontrak formal mencakup:
-
-- Pre/Post conditions pada setiap fungsi
-- Loop invariants (untuk iterasi)
-- Type invariants (subtype Safe_Deflection, Safe_Command)
-- Pragma Ghost untuk properti global
-
-Proved properties: no overflow, no runtime error, valid range, consensus, safety envelope.
-
----
-
-## OCaml Design Principles
-
-- Pure functional core (optimizer, setpoint generator)
-- Immutable data structures (state, trajectory, commands)
-- Type-safe FFI via Ctypes (no unsafe casts)
-- Algebraic data types for flight modes and waypoints
-
----
-
-## Contribution Guidelines
-
-- Zero comments dalam kode — semua self-documenting melalui penamaan dan tipe.
-- Setiap file memiliki tanggung jawab tunggal yang jelas.
-- Setiap fungsi SPARK harus memiliki kontrak formal yang lengkap.
-- Setiap modul OCaml harus memiliki .mli dengan signature eksplisit.
-- Commit messages mengikuti format: <type>(<scope>): <subject> (feat, fix, test, build, docs, etc.)
-
----
-
-## Safety & Mission-Critical Assurance
-
-- Triple-redundant voting (median selection)
-- Health monitoring (suhu, arus, tekanan, posisi)
-- Power distribution with overload detection & load shedding
-- FSM dengan state: Idle, Active, Fault, Emergency
-- Emergency override dengan rate limit 0.01 (safety-critical)
-
----
-
-## Future Extensions
-
-- Integration dengan real sensor hardware
-- Logging & telemetry streaming
-- Runtime assertion monitoring (RAM)
-- Fuzzing harness with coverage oracle
-
----
-
-## License
-
-GPL-3.0 — untuk keperluan open-source aerospace research.
-
----
-
-## Authors
-
-Nareswara.
+SPARK Proof (Manual)
+bash
+gprbuild -P spark_lib.gpr -p
+gnatprove -P actuator_controller.gpr --level=1
+License
+GPL-3.0-only
