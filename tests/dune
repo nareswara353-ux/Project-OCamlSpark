@@ -14,3 +14,13 @@
  (name fuser_test)
  (modules fuser_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name logger_test)
+ (modules logger_test)
+ (libraries actuator_engine alcotest))
+
+(test
+ (name error_test)
+ (modules error_test)
+ (libraries actuator_engine alcotest str))
