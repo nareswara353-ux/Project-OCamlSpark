@@ -59,3 +59,8 @@
  (name config_test)
  (modules config_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name config_loader_test)
+ (modules config_loader_test)
+ (libraries actuator_engine alcotest))
