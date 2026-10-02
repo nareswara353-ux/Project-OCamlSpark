@@ -34,3 +34,8 @@
  (name result_util_test)
  (modules result_util_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name ring_buffer_test)
+ (modules ring_buffer_test)
+ (libraries actuator_engine alcotest))
