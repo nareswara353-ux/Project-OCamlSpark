@@ -24,3 +24,8 @@
  (name error_test)
  (modules error_test)
  (libraries actuator_engine alcotest str))
+
+(test
+ (name time_util_test)
+ (modules time_util_test)
+ (libraries actuator_engine alcotest))
