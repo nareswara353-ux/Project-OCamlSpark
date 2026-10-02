@@ -44,3 +44,8 @@
  (name event_bus_test)
  (modules event_bus_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name telemetry_test)
+ (modules telemetry_test)
+ (libraries actuator_engine alcotest))
