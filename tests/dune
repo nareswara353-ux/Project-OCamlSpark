@@ -79,3 +79,8 @@
  (name waypoint_parser_test)
  (modules waypoint_parser_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name serializer_test)
+ (modules serializer_test)
+ (libraries actuator_engine alcotest))
