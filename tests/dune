@@ -49,3 +49,8 @@
  (name telemetry_test)
  (modules telemetry_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name metrics_test)
+ (modules metrics_test)
+ (libraries actuator_engine alcotest))
