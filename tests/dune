@@ -39,3 +39,8 @@
  (name ring_buffer_test)
  (modules ring_buffer_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name event_bus_test)
+ (modules event_bus_test)
+ (libraries actuator_engine alcotest))
