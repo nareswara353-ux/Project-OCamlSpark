@@ -74,3 +74,8 @@
  (name sanitizer_test)
  (modules sanitizer_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name waypoint_parser_test)
+ (modules waypoint_parser_test)
+ (libraries actuator_engine alcotest))
