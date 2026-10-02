@@ -64,3 +64,8 @@
  (name config_loader_test)
  (modules config_loader_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name validator_test)
+ (modules validator_test)
+ (libraries actuator_engine alcotest))
