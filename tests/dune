@@ -69,3 +69,8 @@
  (name validator_test)
  (modules validator_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name sanitizer_test)
+ (modules sanitizer_test)
+ (libraries actuator_engine alcotest))
