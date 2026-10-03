@@ -29,9 +29,9 @@ let all results =
   in
   loop [] results
 
-let any results =
+let any ~default results =
   let rec loop = function
-    | [] -> Error `No_success
+    | [] -> Error default
     | Ok v :: _ -> Ok v
     | Error _ :: rest -> loop rest
   in

@@ -28,8 +28,8 @@ let test_all () =
   Alcotest.(check bool) "one err" true (all [Ok 1; Error "e"; Ok 3] = Error "e")
 
 let test_any () =
-  Alcotest.(check bool) "first ok" true (any [Ok 1; Error "e"] = Ok 1);
-  Alcotest.(check bool) "skip errors" true (any [Error "a"; Ok 2] = Ok 2)
+  Alcotest.(check bool) "first ok" true (any ~default:"none" [Ok 1; Error "e"] = Ok 1);
+  Alcotest.(check bool) "skip errors" true (any ~default:"none" [Error "a"; Ok 2] = Ok 2)
 
 let test_tap () =
   let captured = ref 0 in

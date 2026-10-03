@@ -18,7 +18,7 @@ let create () = {
   buffer = Ring_buffer.create 1000;
 }
 
-let record t snap =
+let record t (snap : snapshot) =
   Ring_buffer.push t.buffer snap
 
 let latest t =
@@ -35,7 +35,8 @@ let count t = Ring_buffer.length t.buffer
 
 let clear t = Ring_buffer.clear t.buffer
 
-let snapshot_of_state timestamp mode cmd state is_safe = {
+let snapshot_of_state (timestamp : float) (mode : flight_mode)
+    (cmd : actuator_command) (state : state) (is_safe : bool) : snapshot = {
   timestamp;
   mode;
   deflection = cmd.deflection;
