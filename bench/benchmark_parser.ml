@@ -33,7 +33,7 @@ let bench_render n =
   | Ok wps ->
       time_it (Printf.sprintf "render_lines(%d)" n)
         (fun () -> render_lines wps)
-  | Error _ -> Printf.printf "skip render(%d): parse failed\n" n
+  | Error _ -> (Printf.printf "skip render(%d): parse failed\n" n; "")
 
 let bench_serialize_state n =
   let s = { position = 1.5; velocity = 0.3; acceleration = 0.0; timestamp = 0.0 } in

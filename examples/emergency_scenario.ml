@@ -1,6 +1,5 @@
 open Trajectory_types
 open Mode_manager
-open Telemetry
 open Metrics
 open Logger
 
