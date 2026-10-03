@@ -10,7 +10,7 @@ type entry = {
 
 type t = {
   mutable min_level : level;
-  mutable sink : entry -> unit;
+  sink : entry -> unit;
 }
 
 let level_to_int = function

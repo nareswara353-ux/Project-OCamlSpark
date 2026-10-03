@@ -18,7 +18,7 @@ let format_iso8601 t =
     tm.Unix.tm_min
     tm.Unix.tm_sec
 
-let format_duration seconds =
+let rec format_duration seconds =
   if seconds < 0.0 then Printf.sprintf "-%s" (format_duration (-. seconds))
   else if seconds < 1.0 then Printf.sprintf "%.2fms" (seconds *. 1000.0)
   else if seconds < 60.0 then Printf.sprintf "%.3fs" seconds

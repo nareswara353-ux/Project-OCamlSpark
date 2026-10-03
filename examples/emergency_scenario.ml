@@ -13,7 +13,7 @@ let () =
   let state = initial_mode_state in
 
   let cmd_normal = { deflection = 0.5; rate_limit = 0.1 } in
-  let _, state_auto = transition state AutoPilot false in
+  let state_auto = transition state AutoPilot false in
   let processed_auto, _ = process_command state_auto cmd_normal in
   Metrics.incr metrics "commands_processed";
   Logger.info log "emergency"
