@@ -1,0 +1,9 @@
+(executable
+ (name benchmark_runner)
+ (modules benchmark_runner)
+ (libraries actuator_engine unix))
+
+(executable
+ (name benchmark_parser)
+ (modules benchmark_parser)
+ (libraries actuator_engine unix))
