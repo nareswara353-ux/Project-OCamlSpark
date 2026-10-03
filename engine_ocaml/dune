@@ -21,7 +21,8 @@
   validator
   sanitizer
   waypoint_parser
-  serializer)
+  serializer
+  version)
  (libraries ctypes-foreign unix))
 
 (executable
