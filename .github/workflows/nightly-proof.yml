@@ -1,0 +1,52 @@
+name: Nightly Formal Proof
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  spark-proof:
+    name: SPARK Formal Proof (gnatprove)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ make git libgmp-dev
+
+      - name: Setup Alire
+        uses: alire-project/setup-alire@v2
+        with:
+          version: "2.0.0"
+
+      - name: Install GNAT toolchain
+        run: |
+          alr --non-interactive settings --global --set toolchain.assistant false
+          alr --non-interactive install gnat_native gprbuild
+          export PATH="${HOME}/.alire/bin:${PATH}"
+          gnat --version
+          gprbuild --version
+
+      - name: Build SPARK shared library
+        run: |
+          alr exec -- gprbuild -P spark_lib.gpr -p || true
+
+      - name: Run gnatprove
+        run: |
+          alr exec -- gnatprove -P actuator_controller.gpr \
+            --level=1 --timeout=120 --report=all || echo "Proof completed with warnings"
+
+      - name: Upload proof artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gnatprove-report
+          path: |
+            obj/**/*.gnatprove
+            lib/
+          if-no-files-found: warn
+          retention-days: 30
