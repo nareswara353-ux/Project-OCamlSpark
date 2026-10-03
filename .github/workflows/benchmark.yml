@@ -1,0 +1,53 @@
+name: Benchmark
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ make git libffi-dev pkg-config
+
+      - name: Setup OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: '5.2.0'
+          dune-cache: true
+
+      - name: Install OCaml dependencies
+        run: |
+          opam install -y dune ctypes-foreign alcotest ocamlformat
+
+      - name: Build
+        run: |
+          eval $(opam env)
+          dune build
+
+      - name: Run engine benchmarks
+        run: |
+          eval $(opam env)
+          dune exec bench/benchmark_runner.exe | tee bench-engine.txt
+
+      - name: Run parser benchmarks
+        run: |
+          eval $(opam env)
+          dune exec bench/benchmark_parser.exe | tee bench-parser.txt
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            bench-engine.txt
+            bench-parser.txt
+          retention-days: 90
