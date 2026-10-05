@@ -1,60 +1,51 @@
 open Trajectory_types
 
-let interpolate_linear (t0 : float) (t1 : float) (v0 : float) (v1 : float) (t : float) : float =
+let interpolate_linear t0 t1 v0 v1 t =
   let ratio = (t -. t0) /. (t1 -. t0) in
   v0 +. ratio *. (v1 -. v0)
 
+let total_steps (traj : trajectory) (dt : float) : int =
+  let total_time = List.fold_left (fun acc w -> acc +. w.time_to_reach) 0.0 traj.waypoints in
+  let n = int_of_float (total_time /. dt) + 1 in
+  if n < 0 then 0 else n
+
 let generate_setpoints (traj : trajectory) (control_freq : float) : (float * float) list =
   let dt = 1.0 /. control_freq in
-  let rec loop remaining_waypoints current_time current_pos current_vel acc =
-    match remaining_waypoints with
-    | [] -> List.rev acc
-    | w :: rest ->
-        let segment_end = current_time +. w.time_to_reach in
-        let rec segment_loop t acc_inner =
-          if t >= segment_end then
-            let final_pos = w.target_position in
-            let final_vel = w.target_velocity in
-            let new_acc = (final_pos, final_vel) :: acc_inner in
-            loop rest segment_end final_pos final_vel new_acc
-          else
-            let pos = interpolate_linear current_time segment_end current_pos w.target_position t in
-            let vel = interpolate_linear current_time segment_end current_vel w.target_velocity t in
-            segment_loop (t +. dt) ((pos, vel) :: acc_inner)
-        in
-        segment_loop current_time acc
-  in
-  match traj.waypoints with
-  | [] -> []
-  | first :: rest ->
-      let initial_pos = traj.start_state.position in
-      let initial_vel = traj.start_state.velocity in
-      let start_time = traj.start_state.timestamp in
-      let first_segment_end = start_time +. first.time_to_reach in
-      let rec first_segment_loop t acc =
-        if t >= first_segment_end then
-          let final_pos = first.target_position in
-          let final_vel = first.target_velocity in
-          let new_acc = (final_pos, final_vel) :: acc in
-          loop rest first_segment_end final_pos final_vel new_acc
-        else
-          let pos = interpolate_linear start_time first_segment_end initial_pos first.target_position t in
-          let vel = interpolate_linear start_time first_segment_end initial_vel first.target_velocity t in
-          first_segment_loop (t +. dt) ((pos, vel) :: acc)
-      in
-      List.rev (first_segment_loop start_time [])
+  let n_steps = total_steps traj dt in
+  let buffer : (float * float) array = Array.make (max n_steps 1) (0.0, 0.0) in
+  let idx = ref 0 in
+  let cur_time = ref traj.start_state.timestamp in
+  let cur_pos = ref traj.start_state.position in
+  let cur_vel = ref traj.start_state.velocity in
+  List.iter (fun w ->
+    let seg_end = !cur_time +. w.time_to_reach in
+    let seg_start_t = !cur_time in
+    let seg_start_pos = !cur_pos in
+    let seg_start_vel = !cur_vel in
+    let t = ref seg_start_t in
+    while !t < seg_end && !idx < Array.length buffer do
+      let pos = interpolate_linear seg_start_t seg_end seg_start_pos w.target_position !t in
+      let vel = interpolate_linear seg_start_t seg_end seg_start_vel w.target_velocity !t in
+      buffer.(!idx) <- (pos, vel);
+      incr idx;
+      t := !t +. dt
+    done;
+    if !idx < Array.length buffer then begin
+      buffer.(!idx) <- (w.target_position, w.target_velocity);
+      incr idx
+    end;
+    cur_time := seg_end;
+    cur_pos := w.target_position;
+    cur_vel := w.target_velocity
+  ) traj.waypoints;
+  Array.sub buffer 0 !idx |> Array.to_list
 
 let to_actuator_commands (setpoints : (float * float) list) (rate_limits : float list) : actuator_command list =
-  let rec zip_with_rate sp rates acc =
-    match sp, rates with
-    | [], _ -> List.rev acc
-    | _, [] -> List.rev acc
-    | (pos, _vel) :: rest_sp, rate :: rest_rate ->
-        let cmd = { deflection = pos; rate_limit = rate } in
-        zip_with_rate rest_sp rest_rate (cmd :: acc)
-  in
-  let default_rates = List.map (fun _ -> 0.1) setpoints in
-  zip_with_rate setpoints (if List.length rate_limits = List.length setpoints then rate_limits else default_rates) []
+  let has_matching_rates = List.length rate_limits = List.length setpoints in
+  if has_matching_rates then
+    List.map2 (fun (pos, _) rate -> { deflection = pos; rate_limit = rate }) setpoints rate_limits
+  else
+    List.map (fun (pos, _) -> { deflection = pos; rate_limit = 0.1 }) setpoints
 
 let generate_commands (traj : trajectory) (control_freq : float) (rate_limits : float list) : actuator_command list =
   let setpoints = generate_setpoints traj control_freq in
