@@ -89,3 +89,8 @@
  (name setpoint_gen_perf_test)
  (modules setpoint_gen_perf_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name examples_smoke_test)
+ (modules examples_smoke_test)
+ (libraries actuator_engine alcotest str))
