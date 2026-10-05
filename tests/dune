@@ -84,3 +84,8 @@
  (name serializer_test)
  (modules serializer_test)
  (libraries actuator_engine alcotest))
+
+(test
+ (name setpoint_gen_perf_test)
+ (modules setpoint_gen_perf_test)
+ (libraries actuator_engine alcotest))
