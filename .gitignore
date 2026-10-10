@@ -37,3 +37,7 @@ html/
 *.css
 *.js
 *.map
+
+.env
+vendor/bundle
+node_modules
